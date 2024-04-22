@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:flowable="http://flowable.org/bpmn"
+             typeLanguage="http://www.w3.org/2001/XMLSchema"
+             expressionLanguage="http://www.w3.org/1999/XPath"
+             targetNamespace="http://www.flowable.org/processdef">
+
+  <process id="holiday-request" name="Holiday Request" isExecutable="true">
+    <!--开始事件：流程实例的起点-->
+    <startEvent id="startEvent"/>
+    <!--顺序流：执行时会从一个活动流向另一个活动-->
+    <sequenceFlow sourceRef="startEvent" targetRef="approveTask"/>
+
+    <!--用户任务：需要人工来进行操作-->
+    <userTask id="approveTask" name="Approve or reject request" flowable:candidateGroups="managers"/>
+    <sequenceFlow sourceRef="approveTask" targetRef="decision"/>
+
+    <!--排他网关-->
+    <exclusiveGateway id="decision"/>
+    <sequenceFlow sourceRef="decision" targetRef="externalSystemCall">
+      <!--顺序流条件：以表达式(expression)的形式定义了条件(condition) -->
+      <conditionExpression xsi:type="tFormalExpression">
+        <!--条件表达式：是${approved == true}的简写-->
+        <![CDATA[
+                  ${approved}
+                ]]>
+      </conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow sourceRef="decision" targetRef="sendRejectionMail">
+      <conditionExpression xsi:type="tFormalExpression">
+        <![CDATA[
+                  ${!approved}
+                ]]>
+      </conditionExpression>
+    </sequenceFlow>
+
+    <!--服务任务，一个自动活动，它会调用一些服务-->
+    <serviceTask id="externalSystemCall" name="Enter holidays in external system" flowable:class="org.example.process.CallExternalSystemDelegate"/>
+
+    <userTask id="holidayApprovedTask" name="Holiday Approve!"  flowable:assignee="${employee}"/>
+    <sequenceFlow sourceRef="holidayApprovedTask" targetRef="approveEnd"/>
+
+    <serviceTask id="sendRejectionMail" name="Send out rejection email" flowable:class="org.example.process.SendRejectionMail"/>
+    <sequenceFlow sourceRef="sendRejectionMail" targetRef="rejectEnd"/>
+
+    <!--结束事件-->
+    <endEvent id="approveEnd"/>
+    <endEvent id="rejectEnd"/>
+  </process>
+
+</definitions>

@@ -1,0 +1,25 @@
+POST http://127.0.0.1:8080/startProcess/holiday-request
+Content-Type: application/json
+
+{
+  "employee": "kim"
+}
+
+<> 2024-04-22T140320.200.json
+<> 2024-04-22T115711.200.json
+<> 2024-04-22T115233.500.json
+<> 2024-04-22T115213.500.json
+<> 2024-04-22T114840.500.json
+<> 2024-04-22T114646.500.json
+<> 2024-04-22T114422.500.json
+
+###
+GET http://127.0.0.1:8080/tasks/managers
+Content-Type: application/json
+
+
+
+<> 2024-04-22T140520.200.json
+<> 2024-04-22T135540.200.json
+<> 2024-04-22T120324.500.json
+<> 2024-04-22T115917.200.json
